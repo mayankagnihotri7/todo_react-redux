@@ -1,43 +1,51 @@
-import { createStore } from "redux";
+import { createStore, combineReducers } from "redux";
 import uuid from "react-uuid";
 import { ADD_TODO, TOGGLE_TODO, REMOVE_TODO } from "./types";
 
 const initialState = {
-  todo: [{ text: "Hello React", completed: false, id: uuid() }],
+  todo: [{ text: "Hello React", completed: false, payload: uuid() }],
   activeTab: "All",
 };
 
-function reducer(state = initialState, action) {
+function reducer(state = initialState.todo, action) {
   switch (action.type) {
     case ADD_TODO:
-      return {
+      return [
         ...state,
-        todo: [
-          ...state.todo,
-          {
-            text: action.text,
-            completed: false,
-            id: uuid(),
-          },
-        ],
-      };
+        {
+          text: action.payload,
+          completed: false,
+          id: uuid(),
+        },
+      ];
     case TOGGLE_TODO:
-      return {
-        todo: state.todo.map((todo) => {
-          if (todo.id === action.id) {
-            return { ...todo, completed: !todo.completed };
-          }
-          return todo;
-        }),
-      };
+      return state.map((todo) => {
+        if (todo.id === action.payload) {
+          return { ...todo, completed: !todo.completed };
+        }
+        return todo;
+      });
     case REMOVE_TODO:
-      return {
-        todo: state.todo.filter((todo) => todo.id !== action.id),
-      };
+      return state.filter((todo) => todo.id !== action.payload);
 
     default:
       return state;
   }
 }
 
-export let store = createStore(reducer);
+function activeTabReducer(state = initialState.activeTab, action) {
+  switch (action.type) {
+    case "change":
+      return action.payload;
+
+    default:
+      return state;
+  }
+}
+
+let rootReducer = combineReducers({
+  todo: reducer,
+  activeTab: activeTabReducer,
+});
+
+export let store = createStore(rootReducer);

@@ -1,6 +1,14 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { ADD_TODO, TOGGLE_TODO, REMOVE_TODO } from "./store/types";
+import {
+  ADD_TODO,
+  TOGGLE_TODO,
+  REMOVE_TODO,
+  ALL_TODO,
+  ACTIVE_TODO,
+  COMPLETED_TODO,
+  CLEAR_COMPLETED,
+} from "./store/types";
 import uuid from "react-uuid";
 
 class App extends Component {
@@ -8,21 +16,40 @@ class App extends Component {
     if (keyCode === 13) {
       this.props.dispatch({
         type: ADD_TODO,
-        text: target.value,
+        payload: target.value,
       });
       target.value = "";
     }
   };
 
   handleToggle = (id) => {
-    this.props.dispatch({ type: TOGGLE_TODO, id });
+    this.props.dispatch({ type: TOGGLE_TODO, payload: id });
   };
 
   handleDelete = (id) => {
-    this.props.dispatch({ type: REMOVE_TODO, id });
+    this.props.dispatch({ type: REMOVE_TODO, payload: id });
+  };
+
+  handleChange = (newTab) => {
+    this.props.dispatch({ type: "change", payload: newTab });
+  };
+
+  getFilteredTodo = (todos, active) => {
+    switch (active) {
+      case ACTIVE_TODO:
+        return todos.filter((todo) => !todo.completed);
+      case COMPLETED_TODO:
+        return todos.filter((todo) => todo.completed);
+      case CLEAR_COMPLETED:
+        return todos.filter((todo) => !todo.completed);
+      default:
+        return todos;
+    }
   };
 
   render() {
+    var todos =
+      this.getFilteredTodo(this.props.todo, this.props.activeTab) || [];
     return (
       <div>
         <div className="text-centre">
@@ -37,12 +64,13 @@ class App extends Component {
 
           <div className="text-centre">
             <ul>
-              {this.props.todo.map((todo) => {
+              {todos.map((todo) => {
                 return (
                   <li key={uuid()}>
                     <input
                       type="checkbox"
                       onClick={() => this.handleToggle(todo.id)}
+                      defaultChecked={todo.completed}
                     />
                     <p>{todo.text}</p>
                     <span onClick={() => this.handleDelete(todo.id)}>x</span>
@@ -57,16 +85,27 @@ class App extends Component {
               <span className="itemsLeft">items left</span>
               <ul className="sub_flex">
                 <li className="all">
-                  <button>All</button>
+                  <button onClick={() => this.handleChange(ALL_TODO)}>
+                    All
+                  </button>
                 </li>
                 <li className="active">
-                  <button>Active</button>
+                  <button onClick={() => this.handleChange(ACTIVE_TODO)}>
+                    Active
+                  </button>
                 </li>
                 <li className="completed">
-                  <button>Completed</button>
+                  <button onClick={() => this.handleChange(COMPLETED_TODO)}>
+                    Completed
+                  </button>
                 </li>
               </ul>
-              <button className="clear">Clear Completed</button>
+              <button
+                className="clear"
+                onClick={() => this.handleChange(CLEAR_COMPLETED)}
+              >
+                Clear Completed
+              </button>
             </div>
           </footer>
         </div>
