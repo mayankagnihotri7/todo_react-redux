@@ -30,6 +30,10 @@ class App extends Component {
     this.props.dispatch({ type: REMOVE_TODO, payload: id });
   };
 
+  handleClear = () => {
+    this.props.dispatch({ type: CLEAR_COMPLETED });
+  };
+
   handleChange = (newTab) => {
     this.props.dispatch({ type: "change", payload: newTab });
   };
@@ -40,8 +44,6 @@ class App extends Component {
         return todos.filter((todo) => !todo.completed);
       case COMPLETED_TODO:
         return todos.filter((todo) => todo.completed);
-      case CLEAR_COMPLETED:
-        return todos.filter((todo) => !todo.completed);
       default:
         return todos;
     }
@@ -50,6 +52,7 @@ class App extends Component {
   render() {
     var todos =
       this.getFilteredTodo(this.props.todo, this.props.activeTab) || [];
+    let filteredTodo = this.props.todo.filter((todo) => !todo.completed).length;
     return (
       <div>
         <div className="text-centre">
@@ -82,7 +85,7 @@ class App extends Component {
 
           <footer className="footer">
             <div className="main_flex">
-              <span className="itemsLeft">items left</span>
+              <span className="itemsLeft">{`${filteredTodo} items left`}</span>
               <ul className="sub_flex">
                 <li className="all">
                   <button onClick={() => this.handleChange(ALL_TODO)}>
@@ -100,10 +103,7 @@ class App extends Component {
                   </button>
                 </li>
               </ul>
-              <button
-                className="clear"
-                onClick={() => this.handleChange(CLEAR_COMPLETED)}
-              >
+              <button className="clear" onClick={() => this.handleClear()}>
                 Clear Completed
               </button>
             </div>

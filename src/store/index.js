@@ -1,6 +1,6 @@
 import { createStore, combineReducers } from "redux";
 import uuid from "react-uuid";
-import { ADD_TODO, TOGGLE_TODO, REMOVE_TODO } from "./types";
+import { ADD_TODO, TOGGLE_TODO, REMOVE_TODO, CLEAR_COMPLETED } from "./types";
 
 const initialState = {
   todo: [{ text: "Hello React", completed: false, payload: uuid() }],
@@ -27,6 +27,8 @@ function reducer(state = initialState.todo, action) {
       });
     case REMOVE_TODO:
       return state.filter((todo) => todo.id !== action.payload);
+    case CLEAR_COMPLETED:
+      return state.filter((todo) => !todo.completed);
 
     default:
       return state;
